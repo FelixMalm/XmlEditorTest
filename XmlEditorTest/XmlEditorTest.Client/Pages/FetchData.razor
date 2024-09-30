@@ -1,0 +1,38 @@
+﻿@page "/fetchdata"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Forms
+@inject XmlConverterService XmlConverter
+
+<h3>Upload XML File</h3>
+
+<InputFile OnChange="HandleFileSelected" />
+
+@if (person != null)
+{
+    <p><strong>Name:</strong> @person.Name</p>
+    <p><strong>Age:</strong> @person.Age</p>
+}
+
+@code {
+    private Person person;
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            try
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    person = await XmlConverter.DeserializeXmlFileToObjectAsync<Person>(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error while deserializing the XML file: {ex.ToString()}");
+            }
+        }
+    }
+
+}
